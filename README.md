@@ -642,3 +642,150 @@ Não há variáveis declaradas no script. Todas as funcionalidades são implemen
 O script não realiza cálculos matemáticos ou operações complexas.
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Script de Troca de Cena
+
+Este script permite que um jogador troque de cena quando se aproxima de uma porta e pressiona a tecla "E". Utiliza o sistema de colisão do Unity para detectar quando o jogador está perto da porta e carrega uma nova cena quando a interação é confirmada.
+
+## Funcionalidades
+
+- Detecta se o jogador está perto de um objeto marcado como porta.
+- Permite que o jogador carregue uma nova cena ao pressionar a tecla "E".
+- Exibe uma mensagem no console indicando que a tecla deve ser pressionada para abrir a porta.
+
+## Código
+
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class ChangeMap : MonoBehaviour
+{
+    private bool playerNearby = false;  // Verifica se o jogador está perto da porta
+    public string sceneName;  // Nome da cena para a qual a porta vai levar
+
+    void Update()
+    {
+        // Verifica se o jogador está perto da porta e apertou "E"
+        if (playerNearby && Input.GetKeyDown(KeyCode.E))
+        {
+            LoadScene();  // Carrega a nova cena
+        }
+    }
+
+    // Detecta se o jogador entrou no Trigger da porta
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerNearby = true;  // Marca que o jogador está perto da porta
+            Debug.Log("Aperte 'E' para abrir a porta.");
+        }
+    }
+
+    // Detecta se o jogador saiu do Trigger da porta
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerNearby = false;  // Marca que o jogador não está mais perto da porta
+        }
+    }
+
+    // Método para carregar a cena
+    private void LoadScene()
+    {
+        if (!string.IsNullOrEmpty(sceneName))  // Verifica se o nome da cena não está vazio
+        {
+            SceneManager.LoadScene(sceneName);  // Carrega a cena especificada
+        }
+        else
+        {
+            Debug.LogError("Nome da cena não foi especificado!");
+        }
+    }
+}
+```
+# Explicação do Código
+
+## Declarações de Variáveis
+
+- **`private bool playerNearby`**: Verifica se o jogador está perto da porta. Inicialmente configurado como `false` e atualizado quando o jogador entra ou sai da área de colisão da porta.
+- **`public string sceneName`**: Nome da cena para a qual a porta levará. Este valor deve ser definido no Inspetor do Unity ou por outro meio.
+
+## Método `Update`
+
+- **`if (playerNearby && Input.GetKeyDown(KeyCode.E))`**: Verifica se o jogador está próximo da porta e se a tecla "E" foi pressionada. Se ambas as condições forem verdadeiras, o método `LoadScene` é chamado para carregar a nova cena.
+
+## Método `OnTriggerEnter`
+
+- **`private void OnTriggerEnter(Collider other)`**: Detecta quando o jogador entra no trigger da porta.
+  - **`if (other.CompareTag("Player"))`**: Verifica se o objeto que entrou no trigger é o jogador.
+    - **`playerNearby = true`**: Marca que o jogador está perto da porta.
+    - **`Debug.Log("Aperte 'E' para abrir a porta.")`**: Exibe uma mensagem no console para o jogador.
+
+## Método `OnTriggerExit`
+
+- **`private void OnTriggerExit(Collider other)`**: Detecta quando o jogador sai do trigger da porta.
+  - **`if (other.CompareTag("Player"))`**: Verifica se o objeto que saiu do trigger é o jogador.
+    - **`playerNearby = false`**: Marca que o jogador não está mais perto da porta.
+
+## Método `LoadScene`
+
+- **`private void LoadScene()`**: Carrega a cena especificada pelo nome.
+  - **`if (!string.IsNullOrEmpty(sceneName))`**: Verifica se o nome da cena não está vazio.
+    - **`SceneManager.LoadScene(sceneName)`**: Carrega a cena especificada.
+    - **`Debug.LogError("Nome da cena não foi especificado!")`**: Exibe uma mensagem de erro se o nome da cena não estiver definido.
+
+## Explicação das Contas
+
+### Detecção de Proximidade e Interação
+
+- **`if (playerNearby && Input.GetKeyDown(KeyCode.E)`**:
+  - **`playerNearby`**: Valor booleano que indica se o jogador está perto da porta.
+  - **`Input.GetKeyDown(KeyCode.E)`**: Verifica se a tecla "E" foi pressionada.
+
+  **Como funciona**: O código verifica se o jogador está na proximidade da porta e se a tecla "E" foi pressionada. Se ambas as condições forem verdadeiras, a cena especificada é carregada.
+
+### Método `LoadScene`
+
+- **`SceneManager.LoadScene(sceneName)`**:
+  - **`sceneName`**: Nome da cena a ser carregada.
+
+  **Como funciona**: Utiliza o `SceneManager` para carregar a cena especificada pelo nome. Se o nome da cena estiver vazio, exibe um erro no console.
+
+## Explicação das Funções e Métodos
+
+### `Input.GetKeyDown`
+
+- **`Input.GetKeyDown(KeyCode.E)`**:
+  - Retorna `true` se a tecla especificada (neste caso, "E") for pressionada durante o frame atual.
+
+  **Como funciona**: Detecta a entrada do jogador para realizar a troca de cena, garantindo que a ação de carregar a cena ocorra apenas quando a tecla é pressionada.
+
+### `OnTriggerEnter`
+
+- **`OnTriggerEnter(Collider other)`**:
+  - Chamado automaticamente pelo Unity quando um objeto entra na área de colisão do trigger.
+
+  **Como funciona**: Permite que o script detecte quando o jogador está perto da porta, ativando a interação e exibindo uma mensagem no console.
+
+### `OnTriggerExit`
+
+- **`OnTriggerExit(Collider other)`**:
+  - Chamado automaticamente pelo Unity quando um objeto sai da área de colisão do trigger.
+
+  **Como funciona**: Permite que o script detecte quando o jogador não está mais perto da porta, desativando a interação.
+
+### `SceneManager.LoadScene`
+
+- **`SceneManager.LoadScene(sceneName)`**:
+  - Carrega a cena especificada pelo nome.
+
+  **Como funciona**: Utiliza o sistema de gerenciamento de cenas do Unity para mudar para a cena desejada, baseada no nome fornecido.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
