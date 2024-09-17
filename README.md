@@ -273,7 +273,7 @@ public class Move : MonoBehaviour
 
 Este script controla a câmera para seguir o jogador em um jogo Unity. Ele ajusta a posição e a rotação da câmera com base na posição do jogador e na entrada do mouse.
 
-## Código e Explicação
+## Código
 
 ```csharp
 using System.Collections;
@@ -707,31 +707,31 @@ public class ChangeMap : MonoBehaviour
     }
 }
 ```
-# Explicação do Código
+## Explicação do Código
 
-## Declarações de Variáveis
+### Declarações de Variáveis
 
 - **`private bool playerNearby`**: Verifica se o jogador está perto da porta. Inicialmente configurado como `false` e atualizado quando o jogador entra ou sai da área de colisão da porta.
 - **`public string sceneName`**: Nome da cena para a qual a porta levará. Este valor deve ser definido no Inspetor do Unity ou por outro meio.
 
-## Método `Update`
+### Método `Update`
 
 - **`if (playerNearby && Input.GetKeyDown(KeyCode.E))`**: Verifica se o jogador está próximo da porta e se a tecla "E" foi pressionada. Se ambas as condições forem verdadeiras, o método `LoadScene` é chamado para carregar a nova cena.
 
-## Método `OnTriggerEnter`
+### Método `OnTriggerEnter`
 
 - **`private void OnTriggerEnter(Collider other)`**: Detecta quando o jogador entra no trigger da porta.
   - **`if (other.CompareTag("Player"))`**: Verifica se o objeto que entrou no trigger é o jogador.
     - **`playerNearby = true`**: Marca que o jogador está perto da porta.
     - **`Debug.Log("Aperte 'E' para abrir a porta.")`**: Exibe uma mensagem no console para o jogador.
 
-## Método `OnTriggerExit`
+### Método `OnTriggerExit`
 
 - **`private void OnTriggerExit(Collider other)`**: Detecta quando o jogador sai do trigger da porta.
   - **`if (other.CompareTag("Player"))`**: Verifica se o objeto que saiu do trigger é o jogador.
     - **`playerNearby = false`**: Marca que o jogador não está mais perto da porta.
 
-## Método `LoadScene`
+### Método `LoadScene`
 
 - **`private void LoadScene()`**: Carrega a cena especificada pelo nome.
   - **`if (!string.IsNullOrEmpty(sceneName))`**: Verifica se o nome da cena não está vazio.
@@ -901,9 +901,9 @@ public class Dialogue : MonoBehaviour
     }
 }
 ```
-# Explicação do Código
+## Explicação do Código
 
-## Declarações de Variáveis
+### Declarações de Variáveis
 
 - **`public GameObject dialogueUI`**: 
   - Painel da UI de diálogo que será mostrado ou ocultado durante a interação com o jogador.
@@ -929,12 +929,12 @@ public class Dialogue : MonoBehaviour
 - **`public Transform player`**: 
   - Referência ao transform do jogador para permitir que o NPC olhe para ele.
 
-## Método `Start`
+### Método `Start`
 
 - **`dialogueUI.SetActive(false)`**: 
   - Inicialmente oculta o painel de diálogo para que ele não apareça até que o jogador interaja com o NPC.
 
-## Método `Update`
+### Método `Update`
 
 - **`if (playerNearby && Input.GetKeyDown(KeyCode.E))`**:
   - Verifica se o jogador está perto e se a tecla "E" foi pressionada.
@@ -948,17 +948,17 @@ public class Dialogue : MonoBehaviour
 - **`if (playerNearby)`**:
   - Se o jogador está perto, faz o NPC olhar para ele utilizando o método `LookAtPlayer`.
 
-## Método `OnTriggerEnter`
+### Método `OnTriggerEnter`
 
 - **`if (other.CompareTag("Player"))`**:
   - Quando o jogador entra na área do NPC, define a flag `playerNearby` como verdadeira para indicar que o jogador está perto.
 
-## Método `OnTriggerExit`
+### Método `OnTriggerExit`
 
 - **`if (other.CompareTag("Player"))`**:
   - Quando o jogador sai da área do NPC, define a flag `playerNearby` como falsa e oculta o painel de diálogo, resetando o índice da linha e o estado do diálogo.
 
-## Método `LookAtPlayer`
+### Método `LookAtPlayer`
 
 - **`Vector3 direction = player.position - transform.position`**:
   - Calcula a direção do jogador em relação ao NPC.
@@ -1248,6 +1248,172 @@ public class Ghost : MonoBehaviour
 - **`CompareTag("Player")`**: Verifica se o objeto tem a tag especificada ("Player").
   - **Como funciona**: Facilita a identificação de objetos específicos com base em suas tags, permitindo que o script execute ações específicas para objetos com tags correspondentes.
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Script de Porta
+
+Este script controla a abertura e o fechamento de uma porta com base na proximidade do jogador e na interação. A porta se move suavemente entre a posição fechada e a posição aberta com uma velocidade definida.
+
+## Funcionalidades
+
+- Movimentação da porta entre uma posição fechada e uma posição aberta
+- Alternância do estado da porta (aberta ou fechada) com base na interação do jogador
+- Verificação da proximidade do jogador para permitir a interação
+
+## Código
+
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Door : MonoBehaviour
+{
+    public Vector3 openPositionOffset = new Vector3(2f, 0, 0);  // Offset da posição aberta da porta (direção e distância de movimento)
+    public float openSpeed = 2f;       // Velocidade de abertura/fechamento
+    public Transform player;           // Referência ao jogador
+    public float interactionDistance = 3f; // Distância mínima para interação
+    private bool isOpen = false;       // Se a porta está aberta ou fechada
+    private bool isPlayerNear = false; // Se o jogador está perto da porta
+
+    private Vector3 closedPosition;    // Posição original da porta (fechada)
+    private Vector3 openPosition;      // Posição aberta da porta
+
+    void Start()
+    {
+        // Armazena a posição original da porta como a posição fechada
+        closedPosition = transform.position;
+        // Calcula a posição aberta baseada no offset
+        openPosition = closedPosition + openPositionOffset;
+    }
+
+    void Update()
+    {
+        // Verifica a distância entre o jogador e a porta
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+        // Se o jogador está dentro da distância de interação
+        if (distanceToPlayer <= interactionDistance)
+        {
+            isPlayerNear = true;
+
+            // Verifica se o jogador pressiona a tecla 'E'
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                isOpen = !isOpen;  // Alterna o estado da porta (abre ou fecha)
+            }
+        }
+        else
+        {
+            isPlayerNear = false;
+        }
+
+        // Move a porta suavemente para a posição aberta ou fechada
+        if (isOpen)
+        {
+            transform.position = Vector3.Lerp(transform.position, openPosition, Time.deltaTime * openSpeed);
+        }
+        else
+        {
+            transform.position = Vector3.Lerp(transform.position, closedPosition, Time.deltaTime * openSpeed);
+        }
+    }
+}
+```
+## Explicação do Código
+
+### Declarações de Variáveis
+
+- **`public Vector3 openPositionOffset = new Vector3(2f, 0, 0)`**: Define o deslocamento da posição aberta da porta, especificando a direção e a distância do movimento.
+
+- **`public float openSpeed = 2f`**: Velocidade com que a porta se abre e fecha.
+
+- **`public Transform player`**: Referência ao transform do jogador, usado para calcular a distância entre o jogador e a porta.
+
+- **`public float interactionDistance = 3f`**: Distância mínima para interação com a porta.
+
+- **`private bool isOpen = false`**: Indica se a porta está aberta ou fechada.
+
+- **`private bool isPlayerNear = false`**: Indica se o jogador está perto da porta.
+
+- **`private Vector3 closedPosition`**: Posição original da porta quando está fechada.
+
+- **`private Vector3 openPosition`**: Posição para a qual a porta se move quando está aberta.
+
+### Método `Start`
+
+- **`closedPosition = transform.position`**: Armazena a posição original da porta como a posição fechada.
+
+- **`openPosition = closedPosition + openPositionOffset`**: Calcula a posição para onde a porta se moverá quando estiver aberta, adicionando o deslocamento à posição fechada.
+
+### Método `Update`
+
+- **`float distanceToPlayer = Vector3.Distance(transform.position, player.position)`**: Calcula a distância entre a porta e o jogador.
+
+- **`if (distanceToPlayer <= interactionDistance)`**: Verifica se o jogador está dentro da distância de interação.
+  - **`isPlayerNear = true`**: Atualiza o estado para indicar que o jogador está perto da porta.
+  - **`if (Input.GetKeyDown(KeyCode.E))`**: Verifica se a tecla 'E' foi pressionada para alternar o estado da porta.
+    - **`isOpen = !isOpen`**: Alterna o estado da porta (abre se estiver fechada e fecha se estiver aberta).
+
+- **`else`**: Se o jogador não está perto da porta.
+  - **`isPlayerNear = false`**: Atualiza o estado para indicar que o jogador não está mais perto da porta.
+
+- **`if (isOpen)`**: Se a porta está aberta.
+  - **`transform.position = Vector3.Lerp(transform.position, openPosition, Time.deltaTime * openSpeed)`**: Move a porta suavemente para a posição aberta.
+
+- **`else`**: Se a porta está fechada.
+  - **`transform.position = Vector3.Lerp(transform.position, closedPosition, Time.deltaTime * openSpeed)`**: Move a porta suavemente para a posição fechada.
+
+## Explicação das Contas
+
+### Movimento da Porta
+
+- **`transform.position = Vector3.Lerp(transform.position, openPosition, Time.deltaTime * openSpeed)`**:
+  - **`transform.position`**: Posição atual da porta.
+  - **`openPosition`**: Posição para a qual a porta deve se mover quando aberta.
+  - **`Time.deltaTime`**: Tempo desde o último frame. Garante que o movimento seja suave e independente da taxa de quadros.
+  - **`openSpeed`**: Velocidade com a qual a porta se move entre a posição fechada e aberta.
+
+  **Como funciona**: A função `Vector3.Lerp` interpola a posição da porta entre a posição atual e a posição de destino (aberta ou fechada). O fator de interpolação é ajustado por `Time.deltaTime * openSpeed`, garantindo que a porta se mova suavemente e de maneira consistente com o tempo decorrido entre frames.
+
+### Distância do Jogador
+
+- **`float distanceToPlayer = Vector3.Distance(transform.position, player.position)`**:
+  - **`transform.position`**: Posição atual da porta.
+  - **`player.position`**: Posição atual do jogador.
+  
+  **Como funciona**: A função `Vector3.Distance` calcula a distância euclidiana entre a posição da porta e a posição do jogador. Este valor é usado para determinar se o jogador está dentro da distância de interação para que a porta possa ser aberta ou fechada.
+
+### Distância e Interação
+
+- **`if (distanceToPlayer <= interactionDistance)`**:
+  - **`distanceToPlayer`**: Distância calculada entre a porta e o jogador.
+  - **`interactionDistance`**: Distância mínima para que o jogador possa interagir com a porta.
+
+  **Como funciona**: Verifica se a distância entre a porta e o jogador é menor ou igual à distância de interação definida. Se for, o jogador está perto o suficiente para interagir com a porta, e o estado da porta pode ser alternado.
+
+## Explicação das Funções e Métodos
+
+- **`Vector3.Distance`**:
+  - **`Vector3.Distance(transform.position, player.position)`**: Mede a distância entre a posição da porta e a posição do jogador.
+
+  **Como funciona**: Calcula a distância euclidiana para determinar se o jogador está perto o suficiente para interagir com a porta.
+
+- **`Vector3.Lerp`**:
+  - **`Vector3.Lerp(transform.position, openPosition, Time.deltaTime * openSpeed)`**: Move a porta suavemente entre a posição atual e a posição de destino.
+
+  **Como funciona**: Interpola a posição da porta entre a posição fechada e a posição aberta, ajustando a suavidade do movimento com base na velocidade e no tempo.
+
+- **`Input.GetKeyDown`**:
+  - **`Input.GetKeyDown(KeyCode.E)`**: Detecta quando a tecla 'E' é pressionada para alternar o estado da porta.
+
+  **Como funciona**: Alterna o estado da porta quando a tecla de interação é pressionada.
+
+- **`if` e `else`**:
+  - **`if (isOpen)`** e **`else`**: Decidem se a porta deve se mover para a posição aberta ou fechada com base no estado atual.
+
+  **Como funciona**: Controla o movimento da porta de acordo com seu estado (aberta ou fechada).
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 
 
