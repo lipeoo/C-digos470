@@ -786,6 +786,468 @@ public class ChangeMap : MonoBehaviour
   **Como funciona**: Utiliza o sistema de gerenciamento de cenas do Unity para mudar para a cena desejada, baseada no nome fornecido.
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Script de Diálogo
+
+Este script gerencia um sistema de diálogo em Unity, permitindo que o jogador interaja com um NPC para visualizar e avançar através de linhas de diálogo. Também inclui a funcionalidade para o NPC olhar para o jogador e dar um item quando o diálogo é concluído.
+
+## Funcionalidades
+
+- Exibe um painel de diálogo quando o jogador está perto e pressiona a tecla "E".
+- Avança para a próxima linha de diálogo ou oculta o painel ao terminar o diálogo.
+- Faz o NPC olhar para o jogador quando ele está próximo.
+- Permite ao NPC dar um item ao jogador após o término do diálogo.
+
+## Código
+
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
+public class Dialogue : MonoBehaviour
+{
+    public GameObject dialogueUI;               // Painel da UI de diálogo
+    public TextMeshProUGUI dialogueText;        // Campo de texto para o diálogo
+    public string[] dialogueLines;              // Linhas de diálogo que serão exibidas
+    private int currentLineIndex = 0;           // Índice da linha atual do diálogo
+    private bool playerNearby = false;          // Flag para verificar se o jogador está perto
+    private bool dialogueActive = false;        // Para controlar se o diálogo está ativo ou não
+    public bool hasItem = false;                // Boolean para verificar se o jogador já tem o item
+
+    public Transform player;                    // Referência ao jogador (para o fantasma olhar para ele)
+
+    void Start()
+    {
+        dialogueUI.SetActive(false);  // Começa com o diálogo oculto
+    }
+
+    void Update()
+    {
+        // Verifica se o jogador está perto e aperta "E"
+        if (playerNearby && Input.GetKeyDown(KeyCode.E))
+        {
+            // Se o diálogo não estiver ativo, ativar e mostrar a primeira linha
+            if (!dialogueActive)
+            {
+                dialogueUI.SetActive(true);
+                dialogueText.text = dialogueLines[currentLineIndex];
+                dialogueActive = true;  // Marca o diálogo como ativo
+            }
+            // Se o diálogo estiver ativo, avançar para a próxima linha
+            else
+            {
+                currentLineIndex++;
+
+                // Se houver mais linhas de diálogo, atualizar o texto
+                if (currentLineIndex < dialogueLines.Length)
+                {
+                    dialogueText.text = dialogueLines[currentLineIndex];
+                }
+                // Se acabar as linhas de diálogo, ocultar o UI, resetar e dar o item ao jogador
+                else
+                {
+                    dialogueUI.SetActive(false);
+                    currentLineIndex = 0;
+                    dialogueActive = false;
+
+                    // Dar o item ao jogador
+                    if (!hasItem)
+                    {
+                        hasItem = true;  // O jogador ganha o item
+                        Debug.Log("Item recebido!");
+                    }
+                }
+            }
+        }
+
+        // O fantasma deve sempre olhar para o jogador se ele estiver por perto
+        if (playerNearby)
+        {
+            LookAtPlayer();
+        }
+    }
+
+    // Detecta quando o jogador entra na área do fantasma
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerNearby = true;  // Jogador está perto
+        }
+    }
+
+    // Detecta quando o jogador sai da área do fantasma
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerNearby = false;  // Jogador não está mais perto
+            dialogueUI.SetActive(false);  // Oculta o diálogo se o jogador sair da área
+            currentLineIndex = 0;  // Reseta o diálogo para o começo
+            dialogueActive = false;  // Garante que o diálogo seja desativado
+        }
+    }
+
+    // Faz o fantasma olhar para o jogador
+    private void LookAtPlayer()
+    {
+        Vector3 direction = player.position - transform.position; // Direção do jogador
+        direction.y = 0;  // Para evitar rotação no eixo Y (vertical)
+        Quaternion rotation = Quaternion.LookRotation(direction); // Calcula a rotação para olhar na direção do jogador
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 5f); // Suaviza a rotação
+    }
+}
+```
+# Explicação do Código
+
+## Declarações de Variáveis
+
+- **`public GameObject dialogueUI`**: 
+  - Painel da UI de diálogo que será mostrado ou ocultado durante a interação com o jogador.
+
+- **`public TextMeshProUGUI dialogueText`**: 
+  - Campo de texto onde as linhas de diálogo são exibidas.
+
+- **`public string[] dialogueLines`**: 
+  - Array contendo as linhas de diálogo que serão apresentadas ao jogador.
+
+- **`private int currentLineIndex = 0`**: 
+  - Índice atual da linha de diálogo que está sendo exibida.
+
+- **`private bool playerNearby = false`**: 
+  - Flag que indica se o jogador está próximo ao NPC.
+
+- **`private bool dialogueActive = false`**: 
+  - Flag para verificar se o diálogo está ativo ou não.
+
+- **`public bool hasItem = false`**: 
+  - Booleano para verificar se o jogador já recebeu um item.
+
+- **`public Transform player`**: 
+  - Referência ao transform do jogador para permitir que o NPC olhe para ele.
+
+## Método `Start`
+
+- **`dialogueUI.SetActive(false)`**: 
+  - Inicialmente oculta o painel de diálogo para que ele não apareça até que o jogador interaja com o NPC.
+
+## Método `Update`
+
+- **`if (playerNearby && Input.GetKeyDown(KeyCode.E))`**:
+  - Verifica se o jogador está perto e se a tecla "E" foi pressionada.
+  - **`if (!dialogueActive)`**:
+    - Se o diálogo não estiver ativo, exibe o painel e mostra a primeira linha de diálogo.
+  - **`else`**:
+    - Se o diálogo já estiver ativo, avança para a próxima linha ou encerra o diálogo se não houver mais linhas.
+  - **`if (!hasItem)`**:
+    - Se o jogador ainda não tiver o item, ele é concedido e uma mensagem é registrada no console.
+
+- **`if (playerNearby)`**:
+  - Se o jogador está perto, faz o NPC olhar para ele utilizando o método `LookAtPlayer`.
+
+## Método `OnTriggerEnter`
+
+- **`if (other.CompareTag("Player"))`**:
+  - Quando o jogador entra na área do NPC, define a flag `playerNearby` como verdadeira para indicar que o jogador está perto.
+
+## Método `OnTriggerExit`
+
+- **`if (other.CompareTag("Player"))`**:
+  - Quando o jogador sai da área do NPC, define a flag `playerNearby` como falsa e oculta o painel de diálogo, resetando o índice da linha e o estado do diálogo.
+
+## Método `LookAtPlayer`
+
+- **`Vector3 direction = player.position - transform.position`**:
+  - Calcula a direção do jogador em relação ao NPC.
+
+- **`direction.y = 0`**:
+  - Define o componente Y da direção como 0 para evitar rotação vertical.
+
+- **`Quaternion rotation = Quaternion.LookRotation(direction)`**:
+  - Calcula a rotação necessária para que o NPC olhe na direção do jogador.
+
+- **`transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 5f)`**:
+  - Suaviza a rotação do NPC para que ele vire lentamente para olhar para o jogador.
+
+## Explicação das Contas
+
+### Movimento e Direção
+
+- **`Vector3 direction = player.position - transform.position`**:
+  - **`player.position`**: Posição atual do jogador.
+  - **`transform.position`**: Posição atual do NPC.
+  - **`direction`**: Vetor que aponta da posição do NPC para a posição do jogador.
+
+  **Como funciona**: Calcula a direção do jogador para que o NPC possa girar e olhar diretamente para ele.
+
+### Rotação Suavizada
+
+- **`Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 5f)`**:
+  - **`transform.rotation`**: Rotação atual do NPC.
+  - **`rotation`**: Rotação desejada para olhar para o jogador.
+  - **`Time.deltaTime`**: Tempo desde o último frame, usado para suavizar a rotação.
+  - **`5f`**: Fator de suavização, ajusta a velocidade da rotação.
+
+  **Como funciona**: Suaviza a transição da rotação atual para a nova rotação, fazendo com que o NPC vire lentamente para olhar para o jogador.
+
+## Explicação das Funções e Métodos
+
+### `Input.GetKeyDown`
+
+- **`Input.GetKeyDown(KeyCode.E)`**:
+  - Retorna `true` se a tecla "E" for pressionada no frame atual.
+
+  **Como funciona**: Detecta se o jogador pressionou a tecla "E" para iniciar ou avançar o diálogo.
+
+### `OnTriggerEnter`
+
+- **`OnTriggerEnter(Collider other)`**:
+  - Método chamado quando outro colisor entra na área do colisor do NPC.
+
+  **Como funciona**: Detecta a entrada do jogador na área do NPC para ativar a interação.
+
+### `OnTriggerExit`
+
+- **`OnTriggerExit(Collider other)`**:
+  - Método chamado quando outro colisor sai da área do colisor do NPC.
+
+  **Como funciona**: Detecta a saída do jogador da área do NPC para desativar o diálogo.
+
+### `LookAtPlayer`
+
+- **`LookAtPlayer()`**:
+  - Método para fazer o NPC olhar para o jogador.
+
+  **Como funciona**: Calcula a rotação necessária para o NPC olhar para o jogador e aplica uma rotação suavizada.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Script do Fantasma
+
+Este script controla o movimento de um fantasma em Unity, permitindo que ele se mova horizontalmente ou verticalmente dentro de limites definidos. Além disso, o script lida com a colisão com o jogador, reposicionando o jogador para a posição inicial ao colidir.
+
+## Funcionalidades
+
+- Movimento do fantasma em um eixo horizontal ou vertical
+- Reposiciona o jogador para a posição inicial se o fantasma colidir com ele
+- Mantém a posição Y do fantasma fixa durante o movimento
+
+## Código
+
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Ghost : MonoBehaviour
+{
+    public enum MovementType
+    {
+        Horizontal, // Movimento da esquerda para a direita
+        Vertical    // Movimento frente para trás
+    }
+
+    public MovementType movementType = MovementType.Horizontal;  // Tipo de movimento do fantasma
+    public float moveSpeed = 5f;  // Velocidade de movimento do fantasma
+    public float leftBoundary = -10f;  // Limite à esquerda
+    public float rightBoundary = 10f;  // Limite à direita
+    public float frontBoundary = -10f; // Limite frontal
+    public float backBoundary = 10f;   // Limite traseiro
+    public float fixedYPosition = 1f;  // Valor fixo do eixo Y do fantasma
+    private bool movingForward = true;  // Controla a direção do movimento
+
+    public Transform player;  // Referência ao jogador para reposicioná-lo
+    public CharacterController playerController;  // Referência ao CharacterController do jogador (se houver)
+
+    void Update()
+    {
+        // Mantém a posição Y fixa
+        Vector3 currentPosition = transform.position;
+        currentPosition.y = fixedYPosition;
+
+        switch (movementType)
+        {
+            case MovementType.Horizontal:
+                // Movimento do fantasma no eixo X
+                if (movingForward)
+                {
+                    currentPosition.x += moveSpeed * Time.deltaTime;
+                    if (currentPosition.x >= rightBoundary)
+                    {
+                        movingForward = false;  // Muda a direção para a esquerda
+                    }
+                }
+                else
+                {
+                    currentPosition.x -= moveSpeed * Time.deltaTime;
+                    if (currentPosition.x <= leftBoundary)
+                    {
+                        movingForward = true;  // Muda a direção para a direita
+                    }
+                }
+                break;
+
+            case MovementType.Vertical:
+                // Movimento do fantasma no eixo Z
+                if (movingForward)
+                {
+                    currentPosition.z += moveSpeed * Time.deltaTime;
+                    if (currentPosition.z >= backBoundary)
+                    {
+                        movingForward = false;  // Muda a direção para trás
+                    }
+                }
+                else
+                {
+                    currentPosition.z -= moveSpeed * Time.deltaTime;
+                    if (currentPosition.z <= frontBoundary)
+                    {
+                        movingForward = true;  // Muda a direção para frente
+                    }
+                }
+                break;
+        }
+
+        // Atualiza a posição do fantasma
+        transform.position = currentPosition;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        // Verifica se o fantasma colidiu com o jogador
+        if (other.gameObject.CompareTag("Player"))
+        {
+            // Desabilita temporariamente o CharacterController, se existir, para evitar conflitos
+            if (playerController != null)
+            {
+                playerController.enabled = false;
+            }
+
+            // Reposiciona o jogador na posição (0, 0, 0)
+            player.position = Vector3.zero;
+
+            // Reativa o CharacterController depois de reposicionar
+            if (playerController != null)
+            {
+                playerController.enabled = true;
+            }
+
+            Debug.Log("Player foi reposicionado para a posição inicial!");
+        }
+    }
+}
+```
+## Explicação do Código
+
+### Declarações de Variáveis
+
+- **`public enum MovementType`**: Define o tipo de movimento que o fantasma pode ter, podendo ser Horizontal ou Vertical.
+- **`public MovementType movementType = MovementType.Horizontal`**: Define o tipo de movimento do fantasma, que por padrão é Horizontal.
+- **`public float moveSpeed = 5f`**: Define a velocidade de movimento do fantasma.
+- **`public float leftBoundary = -10f`**: Define o limite à esquerda do movimento horizontal do fantasma.
+- **`public float rightBoundary = 10f`**: Define o limite à direita do movimento horizontal do fantasma.
+- **`public float frontBoundary = -10f`**: Define o limite frontal do movimento vertical do fantasma.
+- **`public float backBoundary = 10f`**: Define o limite traseiro do movimento vertical do fantasma.
+- **`public float fixedYPosition = 1f`**: Define o valor fixo do eixo Y do fantasma, mantendo a altura constante.
+- **`private bool movingForward = true`**: Controla a direção do movimento do fantasma (se está indo para frente ou para trás).
+- **`public Transform player`**: Referência ao transform do jogador para reposicioná-lo se necessário.
+- **`public CharacterController playerController`**: Referência ao `CharacterController` do jogador, se existir.
+
+### Método `Update`
+
+- **`Vector3 currentPosition = transform.position`**: Obtém a posição atual do fantasma.
+- **`currentPosition.y = fixedYPosition`**: Mantém a posição Y do fantasma fixa.
+
+- **`switch (movementType)`**: Verifica o tipo de movimento do fantasma (Horizontal ou Vertical).
+  - **`case MovementType.Horizontal`**: Movimento do fantasma ao longo do eixo X.
+    - **`if (movingForward)`**: Se o fantasma está se movendo para frente, aumenta a posição X.
+    - **`if (currentPosition.x >= rightBoundary)`**: Se o fantasma alcança o limite direito, muda a direção para a esquerda.
+    - **`else`**: Se o fantasma está se movendo para trás, diminui a posição X.
+    - **`if (currentPosition.x <= leftBoundary)`**: Se o fantasma alcança o limite esquerdo, muda a direção para a direita.
+  - **`case MovementType.Vertical`**: Movimento do fantasma ao longo do eixo Z.
+    - **`if (movingForward)`**: Se o fantasma está se movendo para frente, aumenta a posição Z.
+    - **`if (currentPosition.z >= backBoundary)`**: Se o fantasma alcança o limite traseiro, muda a direção para trás.
+    - **`else`**: Se o fantasma está se movendo para trás, diminui a posição Z.
+    - **`if (currentPosition.z <= frontBoundary)`**: Se o fantasma alcança o limite frontal, muda a direção para frente.
+
+- **`transform.position = currentPosition`**: Atualiza a posição do fantasma com a nova posição calculada.
+
+### Método `OnTriggerEnter`
+
+- **`if (other.gameObject.CompareTag("Player"))`**: Verifica se o objeto com o qual o fantasma colidiu tem a tag "Player".
+  - **`if (playerController != null)`**: Desabilita temporariamente o `CharacterController` do jogador, se existir, para evitar conflitos ao reposicionar o jogador.
+  - **`player.position = Vector3.zero`**: Reposiciona o jogador para a posição inicial `(0, 0, 0)`.
+  - **`if (playerController != null)`**: Reativa o `CharacterController` do jogador depois de reposicionar.
+## Explicação das Contas
+
+### Movimento do Fantasma
+
+- **`currentPosition.x += moveSpeed * Time.deltaTime`**:
+  - **`moveSpeed`**: Velocidade com que o fantasma se move. Define a distância que o fantasma percorrerá por segundo.
+  - **`Time.deltaTime`**: Tempo decorrido desde o último frame. Garante que o movimento seja suave e independente da taxa de quadros.
+
+  **Como funciona**: O movimento do fantasma é ajustado multiplicando a velocidade (`moveSpeed`) pelo tempo desde o último frame (`Time.deltaTime`). Isso assegura que o movimento seja consistente e suave, independentemente da taxa de quadros do jogo.
+
+- **`currentPosition.x -= moveSpeed * Time.deltaTime`**:
+  - **`moveSpeed`**: Velocidade com que o fantasma se move para trás.
+  - **`Time.deltaTime`**: Tempo decorrido desde o último frame.
+
+  **Como funciona**: Similar ao cálculo para movimento para frente, mas subtrai a velocidade multiplicada pelo tempo desde o último frame, movendo o fantasma para trás.
+
+### Limites de Movimento
+
+- **`if (currentPosition.x >= rightBoundary)`** e **`if (currentPosition.x <= leftBoundary)`**:
+  - **`rightBoundary`** e **`leftBoundary`**: Limites que determinam até onde o fantasma pode se mover horizontalmente.
+
+  **Como funciona**: Esses cálculos garantem que o fantasma pare de se mover ao atingir os limites definidos. Quando o fantasma atinge um limite, a direção do movimento é invertida para que ele não ultrapasse os limites estabelecidos.
+
+- **`if (currentPosition.z >= backBoundary)`** e **`if (currentPosition.z <= frontBoundary)`**:
+  - **`backBoundary`** e **`frontBoundary`**: Limites que determinam até onde o fantasma pode se mover verticalmente.
+
+  **Como funciona**: Semelhante aos limites horizontais, esses cálculos garantem que o fantasma não ultrapasse os limites frontais e traseiros, invertendo a direção do movimento quando um limite é alcançado.
+
+### Reposicionamento do Jogador
+
+- **`player.position = Vector3.zero`**:
+  - **`Vector3.zero`**: Representa a posição `(0, 0, 0)` no espaço 3D.
+
+  **Como funciona**: Reposiciona o jogador para a origem do mundo (ponto `(0, 0, 0)`) quando ocorre uma colisão com o fantasma, garantindo que o jogador seja retornado a uma posição inicial conhecida.
+
+### Controles de Movimento
+
+- **`movingForward`**:
+  - **`movingForward`**: Booleano que controla a direção do movimento.
+
+  **Como funciona**: Esse controle determina se o fantasma está se movendo para frente ou para trás, trocando a direção quando o limite é alcançado.
+
+## Explicação das Funções e Métodos
+
+### `transform.position`
+
+- **`transform.position`**: Obtém ou define a posição do GameObject no espaço 3D.
+  - **Como funciona**: Permite acessar e modificar a posição do fantasma para movimentá-lo ou ajustá-lo conforme necessário.
+
+### `Vector3`
+
+- **`Vector3`**: Estrutura que representa um ponto no espaço 3D com coordenadas X, Y e Z.
+  - **Como funciona**: Usada para definir e manipular posições e vetores de movimento no espaço 3D.
+
+### `Time.deltaTime`
+
+- **`Time.deltaTime`**: Tempo desde o último frame.
+  - **Como funciona**: Garante que o movimento do fantasma seja suave e independente da taxa de quadros, ajustando a movimentação de acordo com o tempo decorrido.
+
+### `OnTriggerEnter(Collider other)`
+
+- **`OnTriggerEnter(Collider other)`**: Método chamado quando o GameObject colide com outro Collider com a configuração de trigger ativada.
+  - **Como funciona**: Permite verificar e reagir a colisões com outros objetos, como o jogador, e executar ações específicas, como reposicionar o jogador.
+
+### `CompareTag`
+
+- **`CompareTag("Player")`**: Verifica se o objeto tem a tag especificada ("Player").
+  - **Como funciona**: Facilita a identificação de objetos específicos com base em suas tags, permitindo que o script execute ações específicas para objetos com tags correspondentes.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
