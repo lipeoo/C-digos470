@@ -1,4 +1,5 @@
-# Controle de Movimento do Personagem
+# SCRIPTS
+  # Script do Personagem
 
 Este script fornece controle de movimento para um personagem em Unity, incluindo movimento, animação e pulo. Utiliza o componente `CharacterController` para gerenciar o movimento e o pulo, e o componente `Animator` para ajustar as animações do personagem com base nas ações do jogador.
 
@@ -189,6 +190,7 @@ public class Move : MonoBehaviour
 - Teletransporta o personagem para a posição (0, 0, 0).
 - Reabilita o CharacterController.
 
+
 ## Explicação das Contas
 
 ### Movimento e Velocidade
@@ -262,3 +264,159 @@ public class Move : MonoBehaviour
   - Desativa o `CharacterController`, teletransporta o personagem para a posição `(0, 0, 0)`, e reativa o `CharacterController`.
 
   **Como funciona**: Teletransporta o personagem de volta ao ponto inicial se ele cair fora do mapa, evitando que o personagem se perca ou fique preso fora do cenário.
+
+
+
+
+  # Script de Câmera
+
+Este script controla a câmera para seguir o jogador em um jogo Unity. Ele ajusta a posição e a rotação da câmera com base na posição do jogador e na entrada do mouse.
+
+## Código e Explicação
+
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CameraFollow : MonoBehaviour
+{
+    // Referência ao transform do jogador
+    public Transform player;
+
+    // Distância da câmera ao jogador
+    public float distance = 10.0f;  // Define a distância da câmera ao jogador
+    public float height = 5.0f;     // Define a altura da câmera em relação ao jogador
+
+    // Sensibilidade da rotação da câmera com o mouse
+    public float mouseSensitivity = 100.0f;  // Controla a sensibilidade da rotação da câmera com o mouse
+
+    // Limite de rotação vertical
+    public float minYAngle = -20f;  // Limita a rotação vertical mínima
+    public float maxYAngle = 60f;   // Limita a rotação vertical máxima
+
+    private float currentX = 0f;  // Armazena a rotação atual no eixo X
+    private float currentY = 0f;  // Armazena a rotação atual no eixo Y
+
+    void Start()
+    {
+        // Inicializa a posição do mouse (opcional)
+        Cursor.lockState = CursorLockMode.Locked;  // Tranca o cursor no centro da tela
+    }
+
+    void Update()
+    {
+        // Atualiza os valores de rotação com base no movimento do mouse
+        currentX += Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        currentY -= Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+        // Limita a rotação vertical para não ultrapassar os limites definidos
+        currentY = Mathf.Clamp(currentY, minYAngle, maxYAngle);
+    }
+
+    void LateUpdate()
+    {
+        // Cria uma posição de offset com base na rotação calculada pelo mouse
+        Vector3 direction = new Vector3(0, height, -distance);  // Define a posição da câmera com base na altura e distância
+        Quaternion rotation = Quaternion.Euler(currentY, currentX, 0);  // Cria uma rotação baseada nas entradas do mouse
+
+        // Aplica a posição e rotação ao transform da câmera
+        transform.position = player.position + rotation * direction;  // Calcula a posição final da câmera
+        transform.LookAt(player.position);  // Faz a câmera olhar para o jogador
+    }
+}
+```
+## Explicação do Código
+
+### Declarações de Variáveis
+
+- **`public Transform player`**: Referência ao transform do jogador. Determina a posição do jogador para ajustar a posição da câmera.
+- **`public float distance = 10.0f`**: Distância da câmera em relação ao jogador. Define o quão longe a câmera fica do jogador.
+- **`public float height = 5.0f`**: Altura da câmera em relação ao jogador. Ajusta a altura da câmera acima do jogador.
+- **`public float mouseSensitivity = 100.0f`**: Sensibilidade da rotação da câmera com o mouse. Controla a rapidez com que a câmera reage ao movimento do mouse.
+- **`public float minYAngle = -20f`**: Limite mínimo para a rotação vertical da câmera. Impede que a câmera gire muito para cima.
+- **`public float maxYAngle = 60f`**: Limite máximo para a rotação vertical da câmera. Impede que a câmera gire muito para baixo.
+
+### Método Start
+
+- **`Cursor.lockState = CursorLockMode.Locked`**: Inicializa a posição do cursor do mouse para que ele fique preso no centro da tela durante o jogo.
+
+### Método Update
+
+- **`currentX += Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime`**: Atualiza o valor da rotação horizontal da câmera com base no movimento do mouse.
+- **`currentY -= Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime`**: Atualiza o valor da rotação vertical da câmera com base no movimento do mouse.
+- **`currentY = Mathf.Clamp(currentY, minYAngle, maxYAngle)`**: Limita a rotação vertical da câmera para que não ultrapasse os ângulos definidos por `minYAngle` e `maxYAngle`.
+
+### Método LateUpdate
+
+- **`Vector3 direction = new Vector3(0, height, -distance)`**: Cria uma direção para a posição da câmera com base na altura e distância do jogador.
+- **`Quaternion rotation = Quaternion.Euler(currentY, currentX, 0)`**: Cria uma rotação para a câmera com base nos valores calculados de `currentY` e `currentX`.
+- **`transform.position = player.position + rotation * direction`**: Ajusta a posição da câmera para seguir o jogador, aplicando a rotação calculada.
+- **`transform.LookAt(player.position)`**: Faz com que a câmera olhe para a posição do jogador, garantindo que o jogador esteja sempre no centro da tela.
+
+## Explicação das Contas
+
+### Roteamento da Câmera
+
+- **`currentX += Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime` e `currentY -= Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime`**:
+  - **`Input.GetAxis("Mouse X")` e `Input.GetAxis("Mouse Y")`**: Obtêm os valores do movimento do mouse, que variam entre -1 e 1.
+  - **`mouseSensitivity`**: Multiplica a entrada do mouse para ajustar a rapidez da rotação.
+  - **`Time.deltaTime`**: Garante que a rotação seja ajustada suavemente, independentemente da taxa de quadros.
+  - **Como funciona**: O valor de rotação da câmera é ajustado com base no movimento do mouse e na sensibilidade configurada, garantindo uma resposta suave e proporcional ao movimento do jogador.
+
+### Limitação da Rotação Vertical
+
+- **`currentY = Mathf.Clamp(currentY, minYAngle, maxYAngle)`**:
+  - **`Mathf.Clamp`**: Limita o valor de `currentY` para ficar dentro dos limites definidos por `minYAngle` e `maxYAngle`.
+  - **Como funciona**: Impede que a rotação vertical da câmera ultrapasse os limites definidos, evitando ângulos de visão desconfortáveis ou impraticáveis.
+
+### Posicionamento e Rotação da Câmera
+
+- **`transform.position = player.position + rotation * direction`**:
+  - **`rotation * direction`**: Aplica a rotação calculada ao vetor de direção para determinar a posição final da câmera.
+  - **Como funciona**: Posiciona a câmera atrás e acima do jogador, ajustando a altura e a distância com base na rotação atual para fornecer uma visão adequada.
+
+## Explicação das Funções e Métodos
+
+### `Input.GetAxis`
+
+- **`Input.GetAxis("Mouse X")` e `Input.GetAxis("Mouse Y")`**:
+  - **`Input.GetAxis("Mouse X")`**: Obtém a entrada do movimento horizontal do mouse. Retorna um valor entre -1 e 1 que representa a direção e a magnitude do movimento horizontal.
+  - **`Input.GetAxis("Mouse Y")`**: Obtém a entrada do movimento vertical do mouse. Retorna um valor entre -1 e 1 que representa a direção e a magnitude do movimento vertical.
+
+  **Como funciona**: Esses métodos fornecem os dados de entrada do mouse, que são usados para calcular a rotação da câmera. A rotação da câmera é ajustada com base nesses valores, permitindo que a câmera siga o movimento do mouse.
+
+### `Cursor.lockState`
+
+- **`Cursor.lockState = CursorLockMode.Locked`**:
+  - **`CursorLockMode.Locked`**: Define o estado do cursor para que ele fique preso no centro da tela e não se mova fora da janela do jogo.
+
+  **Como funciona**: Ao bloquear o cursor, o script evita que o cursor se mova fora da área de visualização da câmera, proporcionando uma experiência de jogo mais fluida e controlada. Isso é especialmente útil para jogos em primeira pessoa ou para controle de câmera com o mouse.
+
+### `Mathf.Clamp`
+
+- **`Mathf.Clamp(currentY, minYAngle, maxYAngle)`**:
+  - **`Mathf.Clamp`**: Garante que o valor de `currentY` permaneça dentro do intervalo definido pelos parâmetros `minYAngle` e `maxYAngle`.
+
+  **Como funciona**: Este método impede que o valor de rotação vertical da câmera ultrapasse os limites definidos, evitando que a câmera se incline excessivamente para cima ou para baixo e proporcionando uma visão mais controlada e confortável.
+
+### `Quaternion.Euler`
+
+- **`Quaternion.Euler(currentY, currentX, 0)`**:
+  - **`Quaternion.Euler`**: Cria uma rotação em torno dos eixos X, Y e Z com base nos valores fornecidos. Neste caso, `currentY` e `currentX` determinam a rotação vertical e horizontal, respectivamente.
+
+  **Como funciona**: Este método converte os ângulos de rotação em um quaternion, que é uma representação matemática da rotação. Isso permite que a câmera seja orientada na direção desejada com base nas entradas do mouse.
+
+### `transform.position`
+
+- **`transform.position = player.position + rotation * direction`**:
+  - **`rotation * direction`**: Aplica a rotação calculada ao vetor de direção para determinar a posição final da câmera.
+
+  **Como funciona**: Ajusta a posição da câmera com base na posição do jogador e na rotação calculada. A câmera é posicionada atrás e acima do jogador, criando uma visão ajustada e controlada com base na rotação atual.
+
+### `transform.LookAt`
+
+- **`transform.LookAt(player.position)`**:
+  - **`transform.LookAt`**: Faz com que a câmera olhe para um ponto específico no espaço, neste caso, a posição do jogador.
+
+  **Como funciona**: Garante que a câmera esteja sempre voltada para o jogador, mantendo-o no centro da tela e proporcionando uma perspectiva consistente durante o jogo.
