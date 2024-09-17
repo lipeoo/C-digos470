@@ -392,14 +392,14 @@ public class CameraFollow : MonoBehaviour
 - **`Cursor.lockState = CursorLockMode.Locked`**:
   - **`CursorLockMode.Locked`**: Define o estado do cursor para que ele fique preso no centro da tela e não se mova fora da janela do jogo.
 
-  **Como funciona**: Ao bloquear o cursor, o script evita que o cursor se mova fora da área de visualização da câmera, proporcionando uma experiência de jogo mais fluida e controlada. Isso é especialmente útil para jogos em primeira pessoa ou para controle de câmera com o mouse.
+  **Como funciona**: Ao bloquear o cursor, o script evita que o cursor se mova fora da área de visualização da câmera. Isso é especialmente útil para jogos em primeira pessoa ou para controle de câmera com o mouse.
 
 ### `Mathf.Clamp`
 
 - **`Mathf.Clamp(currentY, minYAngle, maxYAngle)`**:
   - **`Mathf.Clamp`**: Garante que o valor de `currentY` permaneça dentro do intervalo definido pelos parâmetros `minYAngle` e `maxYAngle`.
 
-  **Como funciona**: Este método impede que o valor de rotação vertical da câmera ultrapasse os limites definidos, evitando que a câmera se incline excessivamente para cima ou para baixo e proporcionando uma visão mais controlada e confortável.
+  **Como funciona**: Este método impede que o valor de rotação vertical da câmera ultrapasse os limites definidos, evitando que a câmera se incline excessivamente para cima ou para baixo.
 
 ### `Quaternion.Euler`
 
@@ -424,7 +424,7 @@ public class CameraFollow : MonoBehaviour
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Script das Luzes
 
-Este script controla a ativação de luzes spot na cena com base na proximidade do jogador. As luzes são ativadas quando o jogador se aproxima dentro de uma distância especificada.
+Este script controla a ativação de luzes spot na cena com base na proximidade do jogador. As luzes são ativadas quando o jogador se aproxima dentro de uma distância especificada. Foi feito com o objetivo de fazer o jogo funcionar de forma mais leve (PC travava).
 
 ## Funcionalidades
 
@@ -501,7 +501,7 @@ public class Light : MonoBehaviour
 
 ### Método `Update`
 
-- **`foreach (UnityEngine.Light light in spotLights)`**: Itera sobre todas as luzes armazenadas no array.
+- **`foreach (UnityEngine.Light light in spotLights)`**: Repete sobre todas as luzes armazenadas no array.
   - **`if (light.type == LightType.Spot)`**: Verifica se a luz é do tipo Spot. Isso garante que apenas as luzes spot sejam avaliadas.
   - **`float distanceToPlayer = Vector3.Distance(player.position, light.transform.position)`**:
     - **`player.position`**: Posição atual do jogador.
@@ -547,7 +547,7 @@ public class Light : MonoBehaviour
 
 ### `foreach`
 
-- **`foreach (UnityEngine.Light light in spotLights)`**: Itera sobre todos os componentes `Light` armazenados no array `spotLights`.
+- **`foreach (UnityEngine.Light light in spotLights)`**: Repete sobre todos os componentes `Light` armazenados no array `spotLights`.
   - **Como funciona**: Permite realizar uma ação para cada luz spot na cena, como verificar a distância do jogador e ativar ou desativar a luz conforme necessário.
 
 ### `light.enabled`
@@ -608,13 +608,13 @@ Não há variáveis declaradas no script. Todas as funcionalidades são implemen
   - **`Debug`**: Classe usada para emitir mensagens de log no console do Unity.
   - **`Log`**: Método que exibe uma mensagem no console.
 
-  **Como funciona**: Quando o método `QuitGame` é chamado, ele exibe a mensagem "Saindo do Jogo..." no console do Unity. Isso é útil para depuração e para informar aos desenvolvedores que a saída do jogo foi solicitada.
+  **Como funciona**: Quando o método `QuitGame` é chamado, ele exibe a mensagem "Saindo do Jogo..." no console do Unity.
 
 - **`Application.Quit()`**:
   - **`Application`**: Classe que fornece métodos para interagir com a aplicação.
   - **`Quit`**: Método que encerra a aplicação.
 
-  **Como funciona**: Após exibir a mensagem de log, o método `QuitGame` chama `Application.Quit()`, que encerra o aplicativo ou jogo. Isso é usado para fechar o jogo quando o usuário opta por sair.
+  **Como funciona**: Após exibir a mensagem de log, o método `QuitGame` chama `Application.Quit()`, que encerra o aplicativo ou jogo.
 ## Explicação das Funções e Métodos
 
 ### `SceneManager.LoadScene`
@@ -622,7 +622,7 @@ Não há variáveis declaradas no script. Todas as funcionalidades são implemen
 - **`SceneManager.LoadScene("game")`**:
   - Carrega a cena com o nome especificado ("game").
 
-  **Como funciona**: Permite iniciar uma nova cena no jogo, o que é útil para começar o jogo a partir de um menu ou outra interface.
+  **Como funciona**: Permite iniciar uma nova cena no jogo.
 
 ### `Debug.Log`
 
@@ -951,12 +951,12 @@ public class Dialogue : MonoBehaviour
 ### Método `OnTriggerEnter`
 
 - **`if (other.CompareTag("Player"))`**:
-  - Quando o jogador entra na área do NPC, define a flag `playerNearby` como verdadeira para indicar que o jogador está perto.
+  - Quando o jogador entra na área do NPC, define `playerNearby` como verdadeira para indicar que o jogador está perto.
 
 ### Método `OnTriggerExit`
 
 - **`if (other.CompareTag("Player"))`**:
-  - Quando o jogador sai da área do NPC, define a flag `playerNearby` como falsa e oculta o painel de diálogo, resetando o índice da linha e o estado do diálogo.
+  - Quando o jogador sai da área do NPC, define `playerNearby` como falsa e oculta o painel de diálogo, resetando o índice da linha e o estado do diálogo.
 
 ### Método `LookAtPlayer`
 
