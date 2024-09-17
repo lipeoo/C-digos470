@@ -1413,7 +1413,155 @@ public class Door : MonoBehaviour
   **Como funciona**: Controla o movimento da porta de acordo com seu estado (aberta ou fechada).
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Script da Porta do Final de Jogo
 
+Este script gerencia o teletransporte do jogador para uma nova cena quando ele está próximo de um ponto específico e possui um item necessário. Utiliza o componente `Collider` para detectar a proximidade do jogador e o componente `SceneManager` para carregar a nova cena.
 
+## Funcionalidades
 
+- Detecta quando o jogador está próximo de um ponto específico.
+- Verifica se o jogador possui um item necessário.
+- Teletransporta o jogador para uma nova cena quando a tecla "E" é pressionada.
 
+## Código
+
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class Final : MonoBehaviour
+{
+    public string nomeCena;            // Nome da cena para teletransporte
+    public Transform player;           // Referência ao jogador
+    private bool playerProximo = false; // Verifica se o jogador está próximo
+
+    // Referência ao script que contém o "hasItem"
+    public Dialogue dialogue;
+
+    void Update()
+    {
+        // Verifica se o jogador está próximo e se o jogador tem o item necessário
+        if (playerProximo && dialogue.hasItem)
+        {
+            // Se o jogador apertar "E", e já tiver o item, teletransporta para a nova cena
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                Teleportar();
+            }
+        }
+    }
+
+    // Função que realiza o teletransporte
+    void Teleportar()
+    {
+        // Verifica se o nome da cena foi definido
+        if (!string.IsNullOrEmpty(nomeCena))
+        {
+            SceneManager.LoadScene(nomeCena); // Carrega a nova cena
+        }
+        else
+        {
+            Debug.LogError("Nome da cena não foi definido na porta de teletransporte.");
+        }
+    }
+
+    // Detecta quando o jogador entra no gatilho da porta
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerProximo = true; // Marca que o jogador está próximo
+            Debug.Log("Pressione 'E' para entrar na porta.");
+        }
+    }
+
+    // Detecta quando o jogador sai do gatilho da porta
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerProximo = false; // Marca que o jogador saiu da proximidade
+        }
+    }
+}
+```
+## Explicação do Código
+
+### Declarações de Variáveis
+
+- **`public string nomeCena`**: Nome da cena para teletransporte. Define qual cena será carregada quando o jogador interagir com o ponto de teletransporte.
+- **`public Transform player`**: Referência ao transform do jogador. Usado para verificar a proximidade do jogador com o ponto de teletransporte.
+- **`private bool playerProximo`**: Verifica se o jogador está próximo do ponto de teletransporte.
+- **`public Dialogue dialogue`**: Referência ao script que contém a propriedade `hasItem`, que indica se o jogador possui o item necessário.
+
+### Método `Update`
+
+- **`if (playerProximo && dialogue.hasItem)`**: Verifica se o jogador está próximo e possui o item necessário.
+  - **`if (Input.GetKeyDown(KeyCode.E))`**: Se a tecla "E" for pressionada e o jogador tiver o item, chama o método `Teleportar()` para carregar a nova cena.
+
+### Método `Teleportar`
+
+- **`if (!string.IsNullOrEmpty(nomeCena))`**: Verifica se o nome da cena foi definido.
+  - **`SceneManager.LoadScene(nomeCena)`**: Carrega a cena especificada no campo `nomeCena`.
+  - **`else`**: Se o nome da cena não foi definido, exibe um erro no console.
+
+### Método `OnTriggerEnter`
+
+- **`if (other.CompareTag("Player"))`**: Verifica se o objeto que entrou no gatilho tem a tag "Player".
+  - **`playerProximo = true`**: Marca que o jogador está próximo do ponto de teletransporte.
+  - **`Debug.Log("Pressione 'E' para entrar na porta.")`**: Exibe uma mensagem no console indicando que o jogador pode interagir com o ponto.
+
+### Método `OnTriggerExit`
+
+- **`if (other.CompareTag("Player"))`**: Verifica se o objeto que saiu do gatilho tem a tag "Player".
+  - **`playerProximo = false`**: Marca que o jogador saiu da proximidade do ponto de teletransporte.
+
+## Explicação das Contas
+
+### Verificação de Proximidade
+
+- **`if (playerProximo && dialogue.hasItem)`**:
+  - **`playerProximo`**: Booleano que indica se o jogador está dentro da área de interação.
+  - **`dialogue.hasItem`**: Booleano que indica se o jogador possui o item necessário.
+
+  **Como funciona**: Esta condição garante que o teletransporte só será possível se o jogador estiver próximo e tiver o item necessário.
+
+### Teletransporte para Nova Cena
+
+- **`SceneManager.LoadScene(nomeCena)`**:
+  - **`nomeCena`**: Nome da cena que será carregada.
+
+  **Como funciona**: Carrega a cena especificada no campo `nomeCena`. Isso realiza a mudança de cenário no jogo, efetivamente teletransportando o jogador para a nova cena.
+
+## Explicação das Funções e Métodos
+
+### `Input.GetKeyDown`
+
+- **`Input.GetKeyDown(KeyCode.E)`**: Retorna `true` se a tecla "E" for pressionada no frame atual.
+
+  **Como funciona**: Detecta a entrada do jogador para acionar a interação com o ponto de teletransporte.
+
+### `SceneManager.LoadScene`
+
+- **`SceneManager.LoadScene(nomeCena)`**: Carrega a cena especificada pelo nome.
+
+  **Como funciona**: Permite carregar uma nova cena quando o jogador interage com o ponto de teletransporte e possui o item necessário.
+
+### `OnTriggerEnter`
+
+- **Método para detectar quando um objeto entra na área de colisão**:
+  - **`other.CompareTag("Player")`**: Verifica se o objeto que entrou tem a tag "Player".
+  - **`playerProximo = true`**: Marca que o jogador está próximo e pode interagir com o ponto.
+
+  **Como funciona**: Permite identificar quando o jogador está na área de interação e prepara para permitir o teletransporte.
+
+### `OnTriggerExit`
+
+- **Método para detectar quando um objeto sai da área de colisão**:
+  - **`other.CompareTag("Player")`**: Verifica se o objeto que saiu tem a tag "Player".
+  - **`playerProximo = false`**: Marca que o jogador saiu da área de interação e não pode mais interagir.
+
+  **Como funciona**: Atualiza o estado para impedir o teletransporte quando o jogador sai da área de interação.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
