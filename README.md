@@ -2,7 +2,7 @@
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   # Script do Personagem
 
-Este script fornece controle de movimento para um personagem em Unity, incluindo movimento, animação e pulo. Utiliza o componente `CharacterController` para gerenciar o movimento e o pulo, e o componente `Animator` para ajustar as animações do personagem com base nas ações do jogador.
+Este script fornece controle para o personagem principal, incluindo movimento, animação e pulo. Utiliza o componente `CharacterController` para gerenciar o movimento e o pulo, e o componente `Animator` para ajustar as animações do personagem com base nas ações do jogador.
 
 ## Funcionalidades
 
@@ -163,7 +163,7 @@ public class Move : MonoBehaviour
 
 - CharacterController character: Referência ao componente CharacterController que controla o movimento do personagem.
 - Animator animator: Referência ao componente Animator que controla as animações do personagem.
-- Vector3 inputs: Armazena as entradas de movimento do jogador (horizontal e vertical).
+- Vector3 inputs: Váriavel que armazena as entradas de movimento do jogador (horizontal e vertical).
 - Vector3 jump: Armazena a força e a direção do pulo.
 - public Transform cameraTransform: Referência à câmera para ajustar a direção do movimento.
 - float velocidade = 5f: Velocidade padrão para o movimento.
@@ -183,7 +183,7 @@ public class Move : MonoBehaviour
 - Move o personagem na direção calculada.
 - Atualiza o estado da animação com base nas ações do jogador.
 - Gerencia o pulo e a aplicação de gravidade.
-- Teleporta o personagem para a posição inicial se ele cair fora do mapa.
+- Chama o método 'ForaDoMapa' que teleporta o personagem para a posição inicial se ele cair fora do mapa.
 
 ### Método `ForaDoMapa`
 
@@ -271,7 +271,7 @@ public class Move : MonoBehaviour
 
   # Script de Câmera
 
-Este script controla a câmera para seguir o jogador em um jogo Unity. Ele ajusta a posição e a rotação da câmera com base na posição do jogador e na entrada do mouse.
+Este script controla a câmera para seguir o jogador. Ele ajusta a posição e a rotação da câmera com base na posição do jogador e na entrada do mouse.
 
 ## Código
 
