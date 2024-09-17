@@ -1,4 +1,5 @@
 # SCRIPTS
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   # Script do Personagem
 
 Este script fornece controle de movimento para um personagem em Unity, incluindo movimento, animação e pulo. Utiliza o componente `CharacterController` para gerenciar o movimento e o pulo, e o componente `Animator` para ajustar as animações do personagem com base nas ações do jogador.
@@ -170,12 +171,12 @@ public class Move : MonoBehaviour
 - float gravity = -9.81f: Valor da gravidade para simular a queda.
 - bool isJumping = false: Estado que indica se o personagem está pulando.
 
-### Método Start
+### Método `Start`
 
 - Inicializa os componentes character e animator com os componentes do GameObject.
 - Define jump como Vector3.zero.
 
-### Método Update
+### Método `Update`
 
 - Obtém os inputs do jogador para movimento horizontal e vertical.
 - Calcula a direção do movimento com base na orientação da câmera.
@@ -184,7 +185,7 @@ public class Move : MonoBehaviour
 - Gerencia o pulo e a aplicação de gravidade.
 - Teleporta o personagem para a posição inicial se ele cair fora do mapa.
 
-### Método ForaDoMapa
+### Método `ForaDoMapa`
 
 - Desabilita o CharacterController para evitar problemas de colisão.
 - Teletransporta o personagem para a posição (0, 0, 0).
@@ -265,8 +266,8 @@ public class Move : MonoBehaviour
 
   **Como funciona**: Teletransporta o personagem de volta ao ponto inicial se ele cair fora do mapa, evitando que o personagem se perca ou fique preso fora do cenário.
 
-
-
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  
 
   # Script de Câmera
 
@@ -337,17 +338,17 @@ public class CameraFollow : MonoBehaviour
 - **`public float minYAngle = -20f`**: Limite mínimo para a rotação vertical da câmera. Impede que a câmera gire muito para cima.
 - **`public float maxYAngle = 60f`**: Limite máximo para a rotação vertical da câmera. Impede que a câmera gire muito para baixo.
 
-### Método Start
+### Método `Start`
 
 - **`Cursor.lockState = CursorLockMode.Locked`**: Inicializa a posição do cursor do mouse para que ele fique preso no centro da tela durante o jogo.
 
-### Método Update
+### Método `Update`
 
 - **`currentX += Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime`**: Atualiza o valor da rotação horizontal da câmera com base no movimento do mouse.
 - **`currentY -= Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime`**: Atualiza o valor da rotação vertical da câmera com base no movimento do mouse.
 - **`currentY = Mathf.Clamp(currentY, minYAngle, maxYAngle)`**: Limita a rotação vertical da câmera para que não ultrapasse os ângulos definidos por `minYAngle` e `maxYAngle`.
 
-### Método LateUpdate
+### Método `LateUpdate`
 
 - **`Vector3 direction = new Vector3(0, height, -distance)`**: Cria uma direção para a posição da câmera com base na altura e distância do jogador.
 - **`Quaternion rotation = Quaternion.Euler(currentY, currentX, 0)`**: Cria uma rotação para a câmera com base nos valores calculados de `currentY` e `currentX`.
@@ -420,3 +421,137 @@ public class CameraFollow : MonoBehaviour
   - **`transform.LookAt`**: Faz com que a câmera olhe para um ponto específico no espaço, neste caso, a posição do jogador.
 
   **Como funciona**: Garante que a câmera esteja sempre voltada para o jogador, mantendo-o no centro da tela e proporcionando uma perspectiva consistente durante o jogo.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Script das Luzes
+
+Este script controla a ativação de luzes spot na cena com base na proximidade do jogador. As luzes são ativadas quando o jogador se aproxima dentro de uma distância especificada.
+
+## Funcionalidades
+
+- Desativa todas as luzes spot ao iniciar o jogo.
+- Ativa as luzes spot quando o jogador está dentro de uma distância definida.
+
+## Código
+
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Light : MonoBehaviour
+{
+    public float activationDistance = 20f;  // Distância em que as luzes são ativadas
+    public Transform player;                // Referência do jogador
+
+    private UnityEngine.Light[] spotLights; // Array para armazenar todas as Spot Lights
+
+    void Start()
+    {
+        // Busca todas as luzes na cena
+        spotLights = FindObjectsOfType<UnityEngine.Light>();
+
+        // Certifica-se de que todas as luzes comecem desligadas
+        foreach (UnityEngine.Light light in spotLights)
+        {
+            if (light.type == LightType.Spot)  // Usando explicitamente o LightType do Unity
+            {
+                light.enabled = false;
+            }
+        }
+    }
+
+    void Update()
+    {
+        // Verifica a distância do jogador para cada Spot Light na cena
+        foreach (UnityEngine.Light light in spotLights)
+        {
+            if (light.type == LightType.Spot)  // Usando explicitamente o LightType do Unity
+            {
+                float distanceToPlayer = Vector3.Distance(player.position, light.transform.position);
+
+                // Se o jogador estiver dentro da distância de ativação, liga a luz
+                if (distanceToPlayer <= activationDistance)
+                {
+                    light.enabled = true;
+                }
+                else
+                {
+                    light.enabled = false;
+                }
+            }
+        }
+    }
+}
+```
+
+## Explicação do Código
+
+### Declarações de Variáveis
+
+- **`public float activationDistance = 20f`**: Define a distância a partir da qual as luzes spot são ativadas. Esse valor especifica o raio dentro do qual as luzes spot serão ligadas quando o jogador se aproxima.
+- **`public Transform player`**: Referência ao transform do jogador. Usado para calcular a distância entre o jogador e as luzes spot na cena.
+- **`private UnityEngine.Light[] spotLights`**: Array para armazenar todas as luzes spot na cena. Armazena os componentes `Light` encontrados na cena para serem manipulados pelo script.
+
+### Método `Start`
+
+- **`spotLights = FindObjectsOfType<UnityEngine.Light>()`**: Encontra e armazena todos os componentes `Light` presentes na cena. Isso permite que todas as luzes sejam manipuladas pelo script.
+- **`foreach (UnityEngine.Light light in spotLights)`**: Itera sobre todas as luzes encontradas na cena.
+  - **`if (light.type == LightType.Spot)`**: Verifica se a luz é do tipo Spot. Isso é necessário para garantir que apenas as luzes spot sejam manipuladas.
+  - **`light.enabled = false`**: Desliga todas as luzes spot inicialmente para garantir que comecem desligadas.
+
+### Método `Update`
+
+- **`foreach (UnityEngine.Light light in spotLights)`**: Itera sobre todas as luzes armazenadas no array.
+  - **`if (light.type == LightType.Spot)`**: Verifica se a luz é do tipo Spot. Isso garante que apenas as luzes spot sejam avaliadas.
+  - **`float distanceToPlayer = Vector3.Distance(player.position, light.transform.position)`**:
+    - **`player.position`**: Posição atual do jogador.
+    - **`light.transform.position`**: Posição atual da luz.
+    - **`Vector3.Distance`**: Calcula a distância entre o jogador e a luz.
+  - **`if (distanceToPlayer <= activationDistance)`**: Verifica se o jogador está dentro da distância de ativação definida.
+    - **`light.enabled = true`**: Liga a luz se o jogador estiver dentro da distância de ativação.
+    - **`else`**: Caso o jogador esteja fora da distância de ativação.
+      - **`light.enabled = false`**: Desliga a luz se o jogador estiver fora da distância de ativação.
+
+## Explicação das Contas
+
+### Movimento e Distância
+
+- **`Vector3.Distance(player.position, light.transform.position)`**:
+  - **`player.position`**: Representa a posição do jogador no espaço 3D.
+  - **`light.transform.position`**: Representa a posição da luz spot no espaço 3D.
+  - **`Vector3.Distance`**: Calcula a distância euclidiana entre o jogador e a luz. Esta distância é essencial para determinar se a luz deve ser ativada com base na proximidade do jogador.
+
+  **Como funciona**: A distância entre o jogador e a luz é calculada utilizando a fórmula da distância euclidiana, que mede o comprimento da linha reta entre dois pontos no espaço 3D. Esse valor é comparado com a `activationDistance` para decidir se a luz deve ser ligada ou desligada.
+
+### Controle de Ativação da Luz
+
+- **`if (distanceToPlayer <= activationDistance)`**:
+  - **`distanceToPlayer`**: Valor obtido pela função `Vector3.Distance`, representando a distância entre o jogador e a luz.
+  - **`activationDistance`**: Valor fixo definido na variável pública que especifica o raio de ativação das luzes.
+
+  **Como funciona**: Se a distância calculada (`distanceToPlayer`) é menor ou igual ao valor de `activationDistance`, isso significa que a luz está dentro do alcance do jogador e deve ser ativada (`light.enabled = true`). Caso contrário, a luz é desativada (`light.enabled = false`).
+
+## Explicação das Funções e Métodos
+
+### `FindObjectsOfType<T>()`
+
+- **`FindObjectsOfType<UnityEngine.Light>()`**: Retorna um array contendo todos os objetos do tipo especificado (`Light`) encontrados na cena.
+  - **Como funciona**: Permite encontrar e armazenar todas as luzes na cena para que possam ser manipuladas pelo script.
+
+### `Vector3.Distance`
+
+- **`Vector3.Distance(player.position, light.transform.position)`**:
+  - **`player.position`**: Posição do jogador no espaço.
+  - **`light.transform.position`**: Posição da luz no espaço.
+  - **`Vector3.Distance`**: Calcula a distância euclidiana entre o jogador e a luz. Esse valor é utilizado para determinar se a luz deve ser ativada com base na proximidade do jogador.
+
+### `foreach`
+
+- **`foreach (UnityEngine.Light light in spotLights)`**: Itera sobre todos os componentes `Light` armazenados no array `spotLights`.
+  - **Como funciona**: Permite realizar uma ação para cada luz spot na cena, como verificar a distância do jogador e ativar ou desativar a luz conforme necessário.
+
+### `light.enabled`
+
+- **`light.enabled = true` e `light.enabled = false`**: Propriedade que controla se a luz está ligada ou desligada.
+  - **Como funciona**: Liga ou desliga as luzes spot com base na distância do jogador. Se o jogador está dentro do raio definido (`activationDistance`), a luz é ativada; caso contrário, é desativada.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
