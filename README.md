@@ -154,3 +154,29 @@ public class Move : MonoBehaviour
         character.enabled = true;
     }
 }
+```
+#Explicação do Código
+Declarações de Variáveis
+-CharacterController character: Referência ao componente CharacterController que controla o movimento do personagem.
+-Animator animator: Referência ao componente Animator que controla as animações do personagem.
+-Vector3 inputs: Armazena as entradas de movimento do jogador (horizontal e vertical).
+-Vector3 jump: Armazena a força e a direção do pulo.
+-public Transform cameraTransform: Referência à câmera para ajustar a direção do movimento.
+-float velocidade = 5f: Velocidade padrão para o movimento.
+-float jumpForce = 5f: Força aplicada ao pulo.
+-float gravity = -9.81f: Valor da gravidade para simular a queda.
+-bool isJumping = false: Estado que indica se o personagem está pulando.
+Método Start
+-Inicializa os componentes character e animator com os componentes do GameObject.
+-Define jump como Vector3.zero.
+Método Update
+-Obtém os inputs do jogador para movimento horizontal e vertical.
+-Calcula a direção do movimento com base na orientação da câmera.
+-Move o personagem na direção calculada.
+-Atualiza o estado da animação com base nas ações do jogador.
+-Gerencia o pulo e a aplicação de gravidade.
+-Teleporta o personagem para a posição inicial se ele cair fora do mapa.
+Método ForaDoMapa
+-Desabilita o CharacterController para evitar problemas de colisão.
+-Teletransporta o personagem para a posição (0, 0, 0).
+-Reabilita o CharacterController.
