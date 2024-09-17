@@ -155,28 +155,110 @@ public class Move : MonoBehaviour
     }
 }
 ```
-#Explicação do Código
-Declarações de Variáveis
--CharacterController character: Referência ao componente CharacterController que controla o movimento do personagem.
--Animator animator: Referência ao componente Animator que controla as animações do personagem.
--Vector3 inputs: Armazena as entradas de movimento do jogador (horizontal e vertical).
--Vector3 jump: Armazena a força e a direção do pulo.
--public Transform cameraTransform: Referência à câmera para ajustar a direção do movimento.
--float velocidade = 5f: Velocidade padrão para o movimento.
--float jumpForce = 5f: Força aplicada ao pulo.
--float gravity = -9.81f: Valor da gravidade para simular a queda.
--bool isJumping = false: Estado que indica se o personagem está pulando.
-Método Start
--Inicializa os componentes character e animator com os componentes do GameObject.
--Define jump como Vector3.zero.
-Método Update
--Obtém os inputs do jogador para movimento horizontal e vertical.
--Calcula a direção do movimento com base na orientação da câmera.
--Move o personagem na direção calculada.
--Atualiza o estado da animação com base nas ações do jogador.
--Gerencia o pulo e a aplicação de gravidade.
--Teleporta o personagem para a posição inicial se ele cair fora do mapa.
-Método ForaDoMapa
--Desabilita o CharacterController para evitar problemas de colisão.
--Teletransporta o personagem para a posição (0, 0, 0).
--Reabilita o CharacterController.
+## Explicação do Código
+
+### Declarações de Variáveis
+
+- CharacterController character: Referência ao componente CharacterController que controla o movimento do personagem.
+- Animator animator: Referência ao componente Animator que controla as animações do personagem.
+- Vector3 inputs: Armazena as entradas de movimento do jogador (horizontal e vertical).
+- Vector3 jump: Armazena a força e a direção do pulo.
+- public Transform cameraTransform: Referência à câmera para ajustar a direção do movimento.
+- float velocidade = 5f: Velocidade padrão para o movimento.
+- float jumpForce = 5f: Força aplicada ao pulo.
+- float gravity = -9.81f: Valor da gravidade para simular a queda.
+- bool isJumping = false: Estado que indica se o personagem está pulando.
+
+### Método Start
+
+- Inicializa os componentes character e animator com os componentes do GameObject.
+- Define jump como Vector3.zero.
+
+### Método Update
+
+- Obtém os inputs do jogador para movimento horizontal e vertical.
+- Calcula a direção do movimento com base na orientação da câmera.
+- Move o personagem na direção calculada.
+- Atualiza o estado da animação com base nas ações do jogador.
+- Gerencia o pulo e a aplicação de gravidade.
+- Teleporta o personagem para a posição inicial se ele cair fora do mapa.
+
+### Método ForaDoMapa
+
+- Desabilita o CharacterController para evitar problemas de colisão.
+- Teletransporta o personagem para a posição (0, 0, 0).
+- Reabilita o CharacterController.
+
+## Explicação das Contas
+
+### Movimento e Velocidade
+
+- **`moveDirection * Time.deltaTime * velocidade`**: 
+  - **`moveDirection`**: Direção para onde o personagem deve se mover. Calculada com base na orientação da câmera e nas entradas do jogador.
+  - **`Time.deltaTime`**: Tempo desde o último frame. Garante que o movimento seja suave e consistente, independentemente da taxa de quadros.
+  - **`velocidade`**: Velocidade com que o personagem se move. Ajusta a distância percorrida por segundo.
+
+  **Como funciona**: O movimento é ajustado pela `velocidade` e o tempo desde o último frame, garantindo uma movimentação uniforme e suave.
+
+### Pulo e Gravidade
+
+- **`jump.y = jumpForce`**: 
+  - **`jump.y`**: Velocidade vertical do pulo.
+  - **`jumpForce`**: Força aplicada ao pulo, determinando a altura do pulo.
+
+- **`jump.y += gravity * Time.deltaTime`**:
+  - **`gravity`**: Valor da gravidade que puxa o personagem para baixo.
+  - **`Time.deltaTime`**: Garante que a aplicação da gravidade seja consistente ao longo do tempo.
+
+  **Como funciona**: Quando o personagem está no chão, a velocidade de pulo é definida pela `jumpForce`. No ar, a gravidade é aplicada para simular a queda, ajustada pelo tempo decorrido desde o último frame.
+
+## Explicação das Funções e Métodos
+
+### `Input.GetAxis`
+
+- **`Input.GetAxis("Horizontal")` e `Input.GetAxis("Vertical")`**:
+  - Retornam valores entre -1 e 1 baseados na entrada horizontal e vertical do jogador (teclas de seta ou joystick).
+
+  **Como funciona**: Obtém as entradas do jogador para movimentar o personagem, proporcionando um controle suave e contínuo.
+
+### `GetComponent<T>`
+
+- **`GetComponent<CharacterController>()` e `GetComponent<Animator>()`**:
+  - Obtém o componente do tipo especificado (`CharacterController` ou `Animator`) no GameObject.
+
+  **Como funciona**: Permite que o script interaja com outros componentes no GameObject, controlando o movimento e as animações do personagem.
+
+### `character.Move(Vector3)`
+
+- **`character.Move(moveDirection * Time.deltaTime * velocidade)`** e **`character.Move(jump * Time.deltaTime)`**:
+  - Move o personagem na direção especificada pelo vetor `Vector3`.
+
+  **Como funciona**: Aplica o movimento ao personagem com base nas entradas do jogador e na física do jogo, como gravidade e pulo.
+
+### `animator.SetBool`
+
+- **`animator.SetBool("Andando", true)`**:
+  - Define um parâmetro booleano no `Animator`, controlando as animações.
+
+  **Como funciona**: Ajusta o estado da animação do personagem de acordo com as ações do jogador (andar, correr, pular).
+
+### `Input.GetKey`
+
+- **`Input.GetKey(KeyCode.Space)`**:
+  - Retorna `true` se a tecla especificada (neste caso, a tecla de espaço) estiver pressionada.
+
+  **Como funciona**: Verifica se o jogador pressionou a tecla para executar uma ação, como pular.
+
+### `character.isGrounded`
+
+- **`character.isGrounded`**:
+  - Retorna `true` se o personagem estiver em contato com o chão.
+
+  **Como funciona**: Verifica se o personagem está no chão, necessário para determinar se o pulo pode ser iniciado ou se a gravidade deve ser aplicada.
+
+### `ForaDoMapa`
+
+- **Método para teletransportar o personagem**:
+  - Desativa o `CharacterController`, teletransporta o personagem para a posição `(0, 0, 0)`, e reativa o `CharacterController`.
+
+  **Como funciona**: Teletransporta o personagem de volta ao ponto inicial se ele cair fora do mapa, evitando que o personagem se perca ou fique preso fora do cenário.
