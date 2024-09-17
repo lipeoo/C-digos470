@@ -555,3 +555,90 @@ public class Light : MonoBehaviour
 - **`light.enabled = true` e `light.enabled = false`**: Propriedade que controla se a luz está ligada ou desligada.
   - **Como funciona**: Liga ou desliga as luzes spot com base na distância do jogador. Se o jogador está dentro do raio definido (`activationDistance`), a luz é ativada; caso contrário, é desativada.
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Script do Botão Menu
+
+Este script controla a funcionalidade de um botão. Permite que o botão inicie uma cena específica ou saia do jogo quando clicado. Utiliza o `SceneManager` para gerenciar as cenas e o `Application` para sair do jogo.
+
+## Funcionalidades
+
+- Carregamento da cena do jogo quando o botão é pressionado
+- Saída do jogo e exibição de uma mensagem de log quando o botão é pressionado
+
+## Código
+
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class Button : MonoBehaviour
+{
+    // Função para carregar a cena do jogo
+    public void StartGame()
+    {
+        SceneManager.LoadScene("game"); 
+    }
+
+    // Função para sair do jogo
+    public void QuitGame()
+    {
+        Debug.Log("Saindo do Jogo..."); 
+        Application.Quit(); 
+    }
+}
+```
+## Explicação do Código
+
+### Declarações de Variáveis
+
+Não há variáveis declaradas no script. Todas as funcionalidades são implementadas diretamente nos métodos.
+
+### Método `StartGame`
+
+- **`SceneManager.LoadScene("game")`**:
+  - **`SceneManager`**: Classe responsável por gerenciar as cenas no Unity.
+  - **`LoadScene`**: Método que carrega a cena especificada pelo nome ("game").
+  
+  **Como funciona**: Quando o método `StartGame` é chamado, ele solicita ao `SceneManager` que carregue a cena com o nome "game". Isso altera a cena atual para a nova cena especificada, permitindo a transição entre diferentes partes do jogo.
+
+### Método `QuitGame`
+
+- **`Debug.Log("Saindo do Jogo...")`**:
+  - **`Debug`**: Classe usada para emitir mensagens de log no console do Unity.
+  - **`Log`**: Método que exibe uma mensagem no console.
+
+  **Como funciona**: Quando o método `QuitGame` é chamado, ele exibe a mensagem "Saindo do Jogo..." no console do Unity. Isso é útil para depuração e para informar aos desenvolvedores que a saída do jogo foi solicitada.
+
+- **`Application.Quit()`**:
+  - **`Application`**: Classe que fornece métodos para interagir com a aplicação.
+  - **`Quit`**: Método que encerra a aplicação.
+
+  **Como funciona**: Após exibir a mensagem de log, o método `QuitGame` chama `Application.Quit()`, que encerra o aplicativo ou jogo. Isso é usado para fechar o jogo quando o usuário opta por sair.
+## Explicação das Funções e Métodos
+
+### `SceneManager.LoadScene`
+
+- **`SceneManager.LoadScene("game")`**:
+  - Carrega a cena com o nome especificado ("game").
+
+  **Como funciona**: Permite iniciar uma nova cena no jogo, o que é útil para começar o jogo a partir de um menu ou outra interface.
+
+### `Debug.Log`
+
+- **`Debug.Log("Saindo do Jogo...")`**:
+  - Exibe uma mensagem no console do Unity para fins de depuração.
+
+  **Como funciona**: Útil para fornecer feedback durante o desenvolvimento e depuração, mostrando que uma ação (neste caso, sair do jogo) está prestes a ocorrer.
+
+### `Application.Quit`
+
+- **`Application.Quit()`**:
+  - Encerra a aplicação.
+
+  **Como funciona**: Utilizado para sair do jogo quando o botão é pressionado, fechando o aplicativo de forma programática.
+## Explicação das Contas
+
+O script não realiza cálculos matemáticos ou operações complexas.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
